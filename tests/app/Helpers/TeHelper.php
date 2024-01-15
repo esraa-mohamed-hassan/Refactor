@@ -1,12 +1,11 @@
 <?php
+
 namespace DTApi\Helpers;
 
 use Carbon\Carbon;
 use DTApi\Models\Job;
-use DTApi\Models\User;
 use DTApi\Models\Language;
 use DTApi\Models\UserMeta;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class TeHelper
@@ -14,29 +13,30 @@ class TeHelper
     public static function fetchLanguageFromJobId($id)
     {
         $language = Language::findOrFail($id);
-        return $language1 = $language->language;
+        return $language->language;
     }
 
     public static function getUsermeta($user_id, $key = false)
     {
-        return $user = UserMeta::where('user_id', $user_id)->first()->$key;
-        if (!$key)
+        $user = UserMeta::where('user_id', $user_id)->first();
+
+        if (!$key) {
             return $user->usermeta()->get()->all();
-        else {
-            $meta = $user->usermeta()->where('key', '=', $key)->get()->first();
-            if ($meta)
-                return $meta->value;
-            else return '';
+        } else {
+            $meta = $user->usermeta()->where('key', '=', $key)->first();
+
+            return $meta ? $meta->value : '';
         }
     }
 
     public static function convertJobIdsInObjs($jobs_ids)
     {
+        $jobs = [];
 
-        $jobs = array();
         foreach ($jobs_ids as $job_obj) {
             $jobs[] = Job::findOrFail($job_obj->id);
         }
+
         return $jobs;
     }
 
@@ -47,10 +47,9 @@ class TeHelper
 
         $difference = $due_time->diffInHours($created_at);
 
-
-        if($difference <= 90)
+        if ($difference <= 90) {
             $time = $due_time;
-        elseif ($difference <= 24) {
+        } elseif ($difference <= 24) {
             $time = $created_at->addMinutes(90);
         } elseif ($difference > 24 && $difference <= 72) {
             $time = $created_at->addHours(16);
@@ -59,8 +58,5 @@ class TeHelper
         }
 
         return $time->format('Y-m-d H:i:s');
-
     }
-
 }
-
